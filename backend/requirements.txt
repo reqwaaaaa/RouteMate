@@ -1,0 +1,10 @@
+Flask
+Flask-SQLAlchemy
+Flask-JWT-Extended
+Flask-Migrate
+mysqlclient
+python-dotenv
+PyJWT
+redis
+celery
+blinker  # 用于管理异步事件和信号处理
