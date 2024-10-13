@@ -5,7 +5,7 @@ from backend.app.track.models import Trajectory, HotspotTrajectory
 from backend.app import db, cache
 from backend.scripts.NDTTJ import ndttj_algorithm
 from backend.scripts.NDTTT import ndttt_algorithm
-from backend.scripts.TSPMG_B import tspmg_b_algorithm
+from backend.scripts.TTHS import tspmg_b_algorithm
 import json
 
 track_bp = Blueprint('track', __name__)

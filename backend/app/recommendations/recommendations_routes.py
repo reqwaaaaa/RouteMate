@@ -5,7 +5,7 @@ from backend.app.auth.models import User
 from backend.app.recommendations.models import Recommendation
 from backend.scripts.NDTTJ import ndttj_algorithm
 from backend.scripts.NDTTT import ndttt_algorithm
-from backend.scripts.TSPMG_B import tspmg_b_algorithm
+from backend.scripts.TTHS import tspmg_b_algorithm
 from backend.app import db
 import json
 
