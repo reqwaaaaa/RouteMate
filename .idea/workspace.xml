@@ -5,17 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2622cac4-dae4-421e-aa35-c4e8b06baefe" name="更改" comment="RouteMate后端">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/pythonProject.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/recommendations/recommendations_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/recommendations/recommendations_routes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/track/track_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/track/track_routes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/scripts/NDTTJ.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/scripts/NDTTJ.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/scripts/NDTTT.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/scripts/NDTTT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/scripts/TSPMG_B.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/scripts/TTHS.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/scripts/TTHS.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/scripts/TTHS.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,11 +162,68 @@
       <option name="project" value="LOCAL" />
       <updated>1728024504745</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="RouteMate后端">
+      <option name="closed" value="true" />
+      <created>1728805373350</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1728805373350</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.env" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="origin/master" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="*" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="RouteMate后端" />

@@ -1,73 +1,81 @@
-import logging
-import concurrent.futures
-
-# 配置日志
-logging.basicConfig(level=logging.INFO)
+import collections
+from datetime import datetime
 
 
-def ndttt_algorithm(trajectories, freq_threshold, max_steps):
+def preprocess_trajectory_data(trajectories):
+    """
+    数据预处理函数：处理经纬度和时间戳数据
+    过滤掉异常数据，并将时间戳转换为 datetime 对象
+    """
+    cleaned_trajectories = []
+    for trajectory in trajectories:
+        cleaned_trajectory = []
+        for point in trajectory:
+            lat, lon, timestamp = point.get('lat'), point.get('lon'), point.get('timestamp')
+            if lat is None or lon is None or timestamp is None:
+                continue
+            if not (-90 <= lat <= 90 and -180 <= lon <= 180):  # 经纬度范围验证
+                continue
+            try:
+                # 时间戳解析
+                time_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+                cleaned_trajectory.append({'lat': lat, 'lon': lon, 'timestamp': time_obj})
+            except ValueError:
+                continue
+        if cleaned_trajectory:
+            cleaned_trajectories.append(cleaned_trajectory)
+    return cleaned_trajectories
+
+
+def NDTTT(trajectories, kmin, mmin):
+    """
+    基于路径遍历扩展的轨迹热点挖掘算法
+    适用于密集轨迹数据，通过遍历轨迹序列动态扩展路径。
+
+    参数：
+    - trajectories: 轨迹集合，每个轨迹为字典形式的节点序列 {'lat', 'lon', 'timestamp'}
+    - kmin: 最小路径长度阈值
+    - mmin: 频繁度阈值
+
+    返回：
+    - 热点路径集合
+    """
+    # 数据预处理
+    trajectories = preprocess_trajectory_data(trajectories)
+
     if not trajectories:
-        raise ValueError("Trajectory data is empty.")
+        raise ValueError("轨迹数据为空或经过预处理后无有效数据")
 
-    logging.info("初始化1阶路径表")
+    # Step 1: 初始化 1 阶路径表，记录每个单节点的出现频率
+    path_table = collections.defaultdict(int)
+    for trajectory in trajectories:
+        for point in trajectory:
+            path = (tuple(point.items()),)
+            path_table[path] += 1
 
-    # 初始化1阶路径表
-    path_table = {}
-    for traj in trajectories:
-        if len(traj) < 2:
-            continue
-        for i in range(len(traj) - 1):
-            pair = (traj[i], traj[i + 1])
-            if pair not in path_table:
-                path_table[pair] = []
-            path_table[pair].append(traj)
+    # 剪枝操作，去除不满足频繁度的路径
+    path_table = {path: count for path, count in path_table.items() if count >= mmin}
 
-    # 剪枝：删除不满足频繁度阈值的路径
-    path_table = {pair: trajs for pair, trajs in path_table.items() if len(trajs) >= freq_threshold}
-    current_paths = list(path_table.keys())
+    # 初始化结果集合
+    result_paths = set()
 
-    # 多次迭代，沿轨迹序列遍历生成更高阶路径
-    for step in range(2, max_steps):
-        logging.info(f"第 {step} 步，当前路径数：{len(current_paths)}")
+    # Step 2: 路径扩展，直到达到最小路径长度 kmin
+    k = 1  # 当前路径长度
+    while k < kmin and path_table:
+        next_path_table = collections.defaultdict(int)
+        for trajectory in trajectories:
+            trajectory_points = [tuple(point.items()) for point in trajectory]
+            trajectory_length = len(trajectory_points)
+            for i in range(trajectory_length - k):
+                current_path = tuple(trajectory_points[i:i + k])
+                if current_path in path_table:
+                    extended_path = current_path + (trajectory_points[i + k],)
+                    next_path_table[extended_path] += 1
+        # 剪枝操作
+        path_table = {path: count for path, count in next_path_table.items() if count >= mmin}
+        k += 1
 
-        new_path_table = {}
+    # 收集满足条件的路径
+    result_paths = [[dict(items) for items in path] for path in path_table.keys() if len(path) >= kmin]
 
-        # 并行处理路径扩展
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = {executor.submit(extend_path_concurrently, path, path_table, step): path for path in
-                       current_paths}
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    new_path, trajs = future.result()
-                    if new_path:
-                        if new_path not in new_path_table:
-                            new_path_table[new_path] = []
-                        new_path_table[new_path].extend(trajs)
-                except Exception as e:
-                    logging.error(f"路径扩展时出错: {e}")
-
-        # 剪枝：删除不满足频繁度阈值的路径
-        new_path_table = {path: trajs for path, trajs in new_path_table.items() if len(trajs) >= freq_threshold}
-
-        if not new_path_table:
-            logging.info("未发现更多频繁路径，算法结束。")
-            break
-
-        path_table = new_path_table
-        current_paths = list(new_path_table.keys())
-
-    logging.info("NDTTT算法完成")
-    return current_paths
-
-
-def extend_path_concurrently(path, path_table, step):
-    """
-    扩展路径并返回新的路径和轨迹数据
-    """
-    new_paths = []
-    for traj in path_table[path]:
-        if len(traj) > step:
-            new_path = path + (traj[step],)  # 继续扩展路径
-            new_paths.append((new_path, traj))
-
-    return new_path, traj
+    return result_paths

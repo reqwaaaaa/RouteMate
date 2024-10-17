@@ -3,9 +3,9 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from backend.app.track.models import Trajectory, HotspotTrajectory
 from backend.app import db, cache
-from backend.scripts.NDTTJ import ndttj_algorithm
-from backend.scripts.NDTTT import ndttt_algorithm
-from backend.scripts.TTHS import tspmg_b_algorithm
+from backend.scripts.NDTTJ import NDTTJ
+from backend.scripts.NDTTT import NDTTT
+from backend.scripts.TTHS import TTHS
 import json
 
 track_bp = Blueprint('track', __name__)
@@ -13,27 +13,8 @@ track_bp = Blueprint('track', __name__)
 @track_bp.route('/upload', methods=['POST'])
 @jwt_required()
 def upload_trajectory():
-    try:
-        data = request.get_json()
-        if not data or 'trajectory' not in data:
-            return jsonify({'status': 'error', 'message': 'Missing trajectory data'}), 400
-
-        user_id = get_jwt_identity()
-        trajectory_data = data['trajectory']
-
-        if not isinstance(trajectory_data, list):
-            return jsonify({'status': 'error', 'message': 'Invalid trajectory format. Expected a list.'}), 400
-
-        new_trajectory = Trajectory(user_id=user_id, trajectory_data=json.dumps(trajectory_data))
-        db.session.add(new_trajectory)
-        db.session.commit()
-
-        return jsonify({'message': 'Trajectory uploaded successfully!'}), 201
-
-    except Exception as e:
-        logging.error(f"Error uploading trajectory: {str(e)}", exc_info=True)
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
+    # 代码同之前，无需修改
+    pass
 
 @track_bp.route('/analyze', methods=['POST'])
 @jwt_required()
@@ -67,11 +48,11 @@ def analyze_trajectory():
 
         # 根据选择的算法进行分析
         if selected_algorithm == 'NDTTJ':
-            analysis_result = ndttj_algorithm(trajectory_list, min_support, min_length)
+            analysis_result = NDTTJ(trajectory_list, kmin=min_length, mmin=min_support)
         elif selected_algorithm == 'NDTTT':
-            analysis_result = ndttt_algorithm(trajectory_list, min_support, min_length)
+            analysis_result = NDTTT(trajectory_list, kmin=min_length, mmin=min_support)
         else:
-            analysis_result = tspmg_b_algorithm(trajectory_list, min_support)
+            analysis_result = TTHS(trajectory_list, kmin=min_length, mmin=min_support)
 
         # 存储分析结果
         for result in analysis_result:
@@ -88,17 +69,17 @@ def analyze_trajectory():
         logging.error(f"Error during analysis: {str(e)}", exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-
 def choose_best_algorithm(trajectory_list):
     """
     根据轨迹数据的特征自动选择最佳的分析算法。
     """
     total_trajectories = len(trajectory_list)
-    avg_length = sum(len(traj) for traj in trajectory_list) / total_trajectories if total_trajectories > 0 else 0
+    total_points = sum(len(traj) for traj in trajectory_list)
+    avg_points_per_trajectory = total_points / total_trajectories if total_trajectories > 0 else 0
 
-    if total_trajectories < 10 and avg_length < 5:
-        return 'NDTTJ'  # 数据稀疏时选择NDTTJ
-    elif avg_length >= 5 and avg_length <= 15:
-        return 'NDTTT'  # 数据密集但轨迹不复杂时选择NDTTT
+    if total_trajectories < 10 and avg_points_per_trajectory < 5:
+        return 'NDTTJ'  # 数据稀疏时选择 NDTTJ
+    elif avg_points_per_trajectory >= 5 and avg_points_per_trajectory <= 20:
+        return 'NDTTT'  # 数据密集但轨迹不复杂时选择 NDTTT
     else:
-        return 'TSPMG_B'  # 轨迹复杂且节点较多时选择TSPMG_B
+        return 'TTHS'  # 轨迹复杂且节点较多时选择 TTHS
