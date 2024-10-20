@@ -10,11 +10,47 @@ import json
 
 track_bp = Blueprint('track', __name__)
 
+
 @track_bp.route('/upload', methods=['POST'])
 @jwt_required()
 def upload_trajectory():
-    # 代码同之前，无需修改
-    pass
+    try:
+        data = request.get_json()
+
+        if data is None or 'routes' not in data:
+            return jsonify({'status': 'error', 'message': 'Invalid or missing JSON data'}), 400
+
+        user_id = get_jwt_identity()
+
+        # 解析高德 API 返回的路线数据
+        routes = data['routes']
+        for route in routes:
+            for step in route['steps']:
+                # 解析 polyline 字符串，转换成坐标点列表
+                points = []
+                for point_str in step['polyline'].split(';'):
+                    lat, lon = map(float, point_str.split(','))
+                    points.append({'lat': lat, 'lon': lon})
+
+                # 将轨迹点存储为 JSON
+                trajectory_data = json.dumps(points)
+
+                # 将轨迹数据存储到数据库中
+                new_trajectory = Trajectory(
+                    user_id=user_id,
+                    trajectory_data=trajectory_data
+                )
+                db.session.add(new_trajectory)
+
+        # 提交数据库事务
+        db.session.commit()
+
+        return jsonify({'status': 'success', 'message': 'Trajectory uploaded successfully!'}), 201
+
+    except Exception as e:
+        logging.error(f"Error during trajectory upload: {str(e)}", exc_info=True)
+        return jsonify({'status': 'error', 'message': 'Failed to upload trajectory data'}), 500
+
 
 @track_bp.route('/analyze', methods=['POST'])
 @jwt_required()
@@ -60,7 +96,7 @@ def analyze_trajectory():
             db.session.add(hotspot)
 
         # 缓存分析结果
-        cache.set(f"hotspot_trajectories_{user_id}", analysis_result, timeout=3600)
+        cache.setex(f"hotspot_trajectories_{user_id}", analysis_result, timeout=3600)
 
         db.session.commit()
         return jsonify({'analysis_result': analysis_result}), 200
@@ -68,6 +104,7 @@ def analyze_trajectory():
     except Exception as e:
         logging.error(f"Error during analysis: {str(e)}", exc_info=True)
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 def choose_best_algorithm(trajectory_list):
     """

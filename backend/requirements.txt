@@ -7,4 +7,3 @@ python-dotenv
 PyJWT
 redis
 celery
-blinker  # 用于管理异步事件和信号处理

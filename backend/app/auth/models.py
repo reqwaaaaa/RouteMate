@@ -1,6 +1,8 @@
 from backend.app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+# from datetime import datetime
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True, nullable=False)

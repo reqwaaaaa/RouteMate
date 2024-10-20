@@ -10,6 +10,7 @@ db = SQLAlchemy()
 jwt = JWTManager()
 celery = Celery()  # 全局声明 Celery 对象
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -31,6 +32,7 @@ def create_app():
     make_celery(app)
 
     return app
+
 
 def make_celery(app):
     """

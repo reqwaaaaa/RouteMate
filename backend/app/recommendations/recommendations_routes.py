@@ -13,6 +13,7 @@ from geopy.distance import geodesic
 
 recommendations_bp = Blueprint('recommendations', __name__)
 
+
 def determine_algorithm(trajectories):
     """
     根据轨迹数据的稀疏性或密集性选择合适的算法。
@@ -27,6 +28,7 @@ def determine_algorithm(trajectories):
         return 'NDTTT'  # 中等密集度数据
     else:
         return 'TTHS'  # 高密度/长轨迹序列
+
 
 def compute_similarity(hotspots1, hotspots2, time_threshold=timedelta(minutes=5), distance_threshold=100):
     """
@@ -99,6 +101,7 @@ def compute_similarity(hotspots1, hotspots2, time_threshold=timedelta(minutes=5)
 
     similarity = matched_count / total_matched
     return similarity
+
 
 @recommendations_bp.route('/carpool', methods=['GET'])
 @jwt_required()
