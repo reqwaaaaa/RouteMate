@@ -6,16 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="2622cac4-dae4-421e-aa35-c4e8b06baefe" name="更改" comment="RouteMate后端">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/auth/auth_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/auth/auth_routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/auth/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/auth/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/cache.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/cache.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/recommendations/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/recommendations/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/recommendations/recommendations_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/recommendations/recommendations_routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/track/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/track/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/track/track_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/track/track_routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -183,7 +174,15 @@
       <option name="project" value="LOCAL" />
       <updated>1729137408827</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="RouteMate后端">
+      <option name="closed" value="true" />
+      <created>1729393822244</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1729393822244</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="UnknownFeatures">
