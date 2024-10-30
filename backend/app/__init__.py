@@ -8,7 +8,7 @@ from backend.config import Config
 # 初始化扩展
 db = SQLAlchemy()
 jwt = JWTManager()
-celery = Celery()  # 全局声明 Celery 对象
+celery = Celery()
 
 
 def create_app():
@@ -50,6 +50,7 @@ def make_celery(app):
 
     celery.Task = ContextTask
     return celery
+
 
 # 初始化 Flask app 和 Celery
 app = create_app()

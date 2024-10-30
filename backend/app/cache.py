@@ -23,11 +23,6 @@ def cache_hotspot_trajectories(user_id, hotspots, expiration=3600):
 
 
 def get_cached_hotspots(user_id):
-    """
-    从 Redis 缓存中获取用户的热点轨迹数据。
-    :param user_id: 用户的 ID
-    :return: 如果缓存命中，返回热点轨迹数据 (Python 字典或列表)；否则返回 None。
-    """
     try:
         cache_key = f"hotspots_{user_id}"
         cached_data = cache.get(cache_key)  # 同步方法获取缓存数据
@@ -40,10 +35,6 @@ def get_cached_hotspots(user_id):
 
 
 def delete_cached_hotspots(user_id):
-    """
-    从 Redis 缓存中删除用户的热点轨迹数据。
-    :param user_id: 用户的 ID
-    """
     try:
         cache_key = f"hotspots_{user_id}"
         cache.delete(cache_key)  # 同步方法删除缓存数据
@@ -54,12 +45,6 @@ def delete_cached_hotspots(user_id):
 
 
 def cache_recommendations(user_id, recommendations, expiration=3600):
-    """
-    将用户的拼车推荐数据缓存到 Redis 中，缓存时间默认设置为 1 小时。
-    :param user_id: 用户的 ID
-    :param recommendations: 推荐数据 (Python 字典或列表)
-    :param expiration: 缓存的有效时间 (秒)
-    """
     try:
         cache_key = f"recommendations_{user_id}"
         # 使用 setex 方法缓存推荐数据
@@ -69,11 +54,6 @@ def cache_recommendations(user_id, recommendations, expiration=3600):
 
 
 def get_cached_recommendations(user_id):
-    """
-    从 Redis 缓存中获取用户的拼车推荐数据。
-    :param user_id: 用户的 ID
-    :return: 如果缓存命中，返回推荐数据 (Python 字典或列表)；否则返回 None。
-    """
     try:
         cache_key = f"recommendations_{user_id}"
         cached_data = cache.get(cache_key)  # 同步方法获取缓存数据
@@ -86,10 +66,6 @@ def get_cached_recommendations(user_id):
 
 
 def delete_cached_recommendations(user_id):
-    """
-    从 Redis 缓存中删除用户的拼车推荐数据。
-    :param user_id: 用户的 ID
-    """
     try:
         cache_key = f"recommendations_{user_id}"
         cache.delete(cache_key)  # 同步方法删除缓存数据
