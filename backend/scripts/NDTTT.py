@@ -2,31 +2,6 @@ import collections
 from datetime import datetime
 
 
-def preprocess_trajectory_data(trajectories):
-    """
-    数据预处理函数：处理经纬度和时间戳数据
-    过滤掉异常数据，并将时间戳转换为 datetime 对象
-    """
-    cleaned_trajectories = []
-    for trajectory in trajectories:
-        cleaned_trajectory = []
-        for point in trajectory:
-            lat, lon, timestamp = point.get('lat'), point.get('lon'), point.get('timestamp')
-            if lat is None or lon is None or timestamp is None:
-                continue
-            if not (-90 <= lat <= 90 and -180 <= lon <= 180):  # 经纬度范围验证
-                continue
-            try:
-                # 时间戳解析
-                time_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-                cleaned_trajectory.append({'lat': lat, 'lon': lon, 'timestamp': time_obj})
-            except ValueError:
-                continue
-        if cleaned_trajectory:
-            cleaned_trajectories.append(cleaned_trajectory)
-    return cleaned_trajectories
-
-
 def NDTTT(trajectories, kmin, mmin):
     """
     基于路径遍历扩展的轨迹热点挖掘算法
@@ -40,9 +15,6 @@ def NDTTT(trajectories, kmin, mmin):
     返回：
     - 热点路径集合
     """
-    # 数据预处理
-    trajectories = preprocess_trajectory_data(trajectories)
-
     if not trajectories:
         raise ValueError("轨迹数据为空或经过预处理后无有效数据")
 

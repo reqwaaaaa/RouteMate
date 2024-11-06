@@ -57,3 +57,7 @@ CREATE TABLE IF NOT EXISTS Recommendation
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES User (id) ON DELETE CASCADE
 );
+
+-- 排除重复热点轨迹数据
+ALTER TABLE HotspotTrajectory ADD COLUMN hotspot_hash VARCHAR(32);
+CREATE UNIQUE INDEX idx_user_hotspot ON HotspotTrajectory(user_id, hotspot_hash);

@@ -2,37 +2,16 @@ import collections
 from datetime import datetime
 
 
-def preprocess_trajectory_data(trajectories):
-    """
-    数据预处理函数：处理经纬度和时间戳数据
-    过滤掉异常数据，并将时间戳转换为 datetime 对象
-    """
-    cleaned_trajectories = []
-    for trajectory in trajectories:
-        cleaned_trajectory = []
-        for point in trajectory:
-            lat, lon, timestamp = point.get('lat'), point.get('lon'), point.get('timestamp')
-            if lat is None or lon is None or timestamp is None:
-                continue
-            if not (-90 <= lat <= 90 and -180 <= lon <= 180):  # 经纬度范围验证
-                continue
-            try:
-                # 时间戳解析
-                time_obj = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-                cleaned_trajectory.append({'lat': lat, 'lon': lon, 'timestamp': time_obj})
-            except ValueError:
-                continue
-        if cleaned_trajectory:
-            cleaned_trajectories.append(cleaned_trajectory)
-    return cleaned_trajectories
-
-
 def build_graph(trajectories):
     """
     构建轨迹图，节点为轨迹点，边为相邻点的连接，边上附带出现频率
     """
     graph = collections.defaultdict(lambda: collections.defaultdict(int))
     for trajectory in trajectories:
+        # 检查 trajectory 是否为符合预期格式的列表
+        if not isinstance(trajectory, list) or not all(isinstance(point, dict) for point in trajectory):
+            raise ValueError("每个 trajectory 必须是包含字典的列表，格式为 {'lat', 'lon', 'timestamp'}")
+
         for i in range(len(trajectory) - 1):
             node = tuple(trajectory[i].items())
             next_node = tuple(trajectory[i + 1].items())
@@ -53,9 +32,6 @@ def TTHS(trajectories, kmin, mmin):
     返回：
     - 热点路径集合
     """
-    # 数据预处理
-    trajectories = preprocess_trajectory_data(trajectories)
-
     if not trajectories:
         raise ValueError("轨迹数据为空或经过预处理后无有效数据")
 
