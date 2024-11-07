@@ -20,35 +20,73 @@ def analyze_trajectory():
     if not trajectories:
         return jsonify({"message": "No trajectory data found for this user"}), 404
 
-    trajectory_data = trajectories[0].trajectory_data  # 假设每个用户的所有轨迹数据都在这一行
-    processed_data = [{'lat': point['latitude'], 'lon': point['longitude'], 'timestamp': point['timestamp']}
-                      for point in trajectory_data]
+    # 处理所有轨迹
+    processed_data = []
+    for trajectory in trajectories:
+        # 获取 trajectory_data 并解析为 Python 对象
+        trajectory_data_json = trajectory.trajectory_data
+        if isinstance(trajectory_data_json, str):
+            trajectory_data = json.loads(trajectory_data_json)
+        else:
+            trajectory_data = trajectory_data_json  # 已经是字典或列表
 
-    processed_data = [processed_data]
+        # 处理轨迹点
+        processed_trajectory = []
+        for point in trajectory_data:
+            processed_point = {
+                'lat': point.get('lat') or point.get('latitude'),
+                'lon': point.get('lon') or point.get('longitude'),
+                'timestamp': point.get('timestamp') or point.get('time')
+            }
+            # 确保时间戳是整数类型
+            if isinstance(processed_point['timestamp'], str):
+                processed_point['timestamp'] = int(processed_point['timestamp'])
+            else:
+                processed_point['timestamp'] = int(processed_point['timestamp'])
 
-    total_points = len(processed_data[0])
+            processed_trajectory.append(processed_point)
+
+        # 确保轨迹点按照时间排序
+        processed_trajectory.sort(key=lambda x: x['timestamp'])
+
+        # 将处理好的轨迹添加到列表中
+        processed_data.append(processed_trajectory)
+
+    # 至此，processed_data 就是算法需要的 trajectories 变量
+    # 例如：
+    # processed_data = [
+    #     [   # 第一条轨迹
+    #         {'lat': ..., 'lon': ..., 'timestamp': ...},
+    #         # 更多轨迹点
+    #     ],
+    #     [   # 第二条轨迹
+    #         {'lat': ..., 'lon': ..., 'timestamp': ...},
+    #         # 更多轨迹点
+    #     ],
+    #     # 更多轨迹
+    # ]
+
+    total_points = sum(len(traj) for traj in processed_data)
 
     # 从请求中获取算法的参数
     data = request.get_json()
     min_support = data.get('min_support', 2)
     min_length = data.get('min_length', 2)
 
-    print("Processed data for analysis (first 5 points):", processed_data[:5])
-    print("Total points in processed data:", len(processed_data))
+    print("Total points in processed data:", total_points)
 
     # 根据轨迹数据大小选择合适的算法
-    if total_points < 10000:
+    if total_points < 5000:
         hotspots = NDTTJ(processed_data, kmin=min_length, mmin=min_support)  # 使用 NDTTJ 算法
-    elif 10000 <= total_points <= 100000:
+    elif 5000 <= total_points <= 10000:
         hotspots = NDTTT(processed_data, kmin=min_length, mmin=min_support)  # 使用 NDTTT 算法
     else:
         hotspots = TTHS(processed_data, kmin=min_length, mmin=min_support)  # 使用 TTHS 算法
 
     # 将热点数据转换为 JSON 格式并生成哈希值
     hotspots_json = json.dumps(hotspots)
-    hotspot_hash = HotspotTrajectory.generate_hash(hotspots)  # 使用模型中的 generate_hash
+    hotspot_hash = HotspotTrajectory.generate_hash(hotspots)
 
-    # 检查 HotspotTrajectory 表中是否已存在相同的热点数据
     existing_hotspot = HotspotTrajectory.query.filter_by(user_id=user_id, hotspot_hash=hotspot_hash).first()
     if existing_hotspot:
         return jsonify({"message": "Hotspot data already exists, no new data was added"}), 200
