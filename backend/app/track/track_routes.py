@@ -33,8 +33,8 @@ def analyze_trajectory():
 
     # 从请求中获取算法的参数
     data = request.get_json() or {}
-    min_support = data.get('min_support', 2)
-    min_length = data.get('min_length', 2)
+    min_support = data.get('min_support', 6)
+    min_length = data.get('min_length', 3)
 
     # 根据轨迹数量选择合适的算法
     try:
@@ -43,11 +43,10 @@ def analyze_trajectory():
 
         total_trajectories = len(processed_data)
         print("Total trajectories in processed data:", total_trajectories)
-        print("Number of trajectories:", len(processed_data))
 
-        if total_trajectories < 200:
+        if total_trajectories < 50:
             hotspots = NDTTJ(processed_data, kmin=min_length, mmin=min_support)  # 使用 NDTTJ 算法
-        elif 200 <= total_trajectories <= 1000:
+        elif 50 <= total_trajectories <= 1000:
             hotspots = NDTTT(processed_data, kmin=min_length, mmin=min_support)  # 使用 NDTTT 算法
         else:
             hotspots = TTHS(processed_data, kmin=min_length, mmin=min_support)  # 使用 TTHS 算法
@@ -56,16 +55,12 @@ def analyze_trajectory():
         print("Error running the algorithm:", str(e))
         return jsonify({"message": "Error running the algorithm", "error": str(e)}), 500
 
-    # 检查 hotspots 是否为空
-    if not hotspots:
-        return jsonify({"message": "No hotspots found with the given parameters."}), 200
-
-    # 生成哈希值
+    # 检查是否已存在相同的热点数据
     hotspot_hash = HotspotTrajectory.generate_hash(hotspots)
-
     existing_hotspot = HotspotTrajectory.query.filter_by(user_id=user_id, hotspot_hash=hotspot_hash).first()
+
     if existing_hotspot:
-        return jsonify({"message": "Hotspot data already exists, no new data was added"}), 200
+        return jsonify({"hotspots": hotspots, "message": "Hotspot data already exists, no new data was added"}), 200
 
     # 如果是新数据，插入 `HotspotTrajectory` 表
     new_hotspot = HotspotTrajectory(user_id=user_id, hotspot_data=hotspots, hotspot_hash=hotspot_hash)
