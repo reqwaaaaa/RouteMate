@@ -103,7 +103,7 @@
 │   ├── __init__.py
 │   ├── NDTTJ.py                       # NDTTJ 算法脚本
 │   ├── NDTTT.py                       # NDTTT 算法脚本
-│   └── TTHS.py                     # TTHS 算法脚本
+│   └── TTHS.py                        # TTHS 算法脚本
 ├── app.py                             # Flask 应用入口文件
 └── config.py                          # 配置文件（包含数据库、JWT、Celery 配置）
 ```
