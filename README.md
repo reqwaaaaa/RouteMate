@@ -1,248 +1,83 @@
+# RouteMate 后端服务
 
-## RM后端模块详细分析
+## 1. 项目概述
 
-### 1. **Flask 应用初始化**
+**RouteMate** 旨在为用户提供轨迹管理、热点轨迹挖掘、拼车服务与 POI 推荐功能。
 
-文件：`app/__init__.py`
+### 主要功能
+- 用户身份验证（基于 JWT）
+- 轨迹数据的存储与管理
+- 热点轨迹挖掘（NDTTJ、NDTTT、TTHS 算法）
+- 拼车服务与 POI 推荐
+- RESTful API 管理
 
-- **功能**：初始化 Flask 应用，加载配置，注册数据库、JWT、CORS 等依赖项，并注册路由蓝图。
-- **实现**：
-  - 初始化 Flask 应用实例。
-  - 配置数据库连接和 JWT。
-  - 注册 `auth`, `recommendations`, `track` 模块的路由蓝图。
+### 技术栈
+- 后端框架: Flask
+- 数据库: MySQL
+- 缓存: Redis
+- 算法: NDTTJ、NDTTT、TTHS
+- 身份验证: JWT
 
-### 2. **用户认证模块**
+## 2. 系统架构
 
-目录：`/app/auth`
+### 框架设计
+采用模块化设计，将不同功能划分为多个模块，包括认证模块、轨迹管理模块、推荐模块等。各模块通过 Flask 蓝图 (`Blueprint`) 实现功能的隔离和解耦。
 
-#### 文件：
-- `auth_routes.py`：处理用户的注册和登录请求。
-- `models.py`：定义用户模型，用于数据库交互。
+### 数据库结构
+- **User 表**: 存储用户的基础信息，包括用户名、邮箱、密码哈希等。
+- **Trajectory 表**: 存储用户的轨迹数据，以 JSON 格式保存节点信息。
+- **HotspotTrajectory 表**: 存储用户的热点轨迹，包含轨迹点的纬度和经度。
 
-#### 路由分析：
-- **`POST /auth/register`**
-  - **功能**：用户注册。
-  - **请求数据**：
-    ```json
-    {
-      "username": "user123",
-      "password": "securePassword",
-      "email": "user123@example.com"
-    }
-    ```
-  - **响应数据**：
-    ```json
-    {
-      "message": "User registered successfully",
-      "user_id": 1
-    }
-    ```
+数据库中对 JSON 数据类型进行验证和约束，确保轨迹数据的完整性和一致性。
 
-- **`POST /auth/login`**
-  - **功能**：用户登录，返回 JWT 令牌。
-  - **请求数据**：
-    ```json
-    {
-      "username": "user123",
-      "password": "securePassword"
-    }
-    ```
-  - **响应数据**：
-    ```json
-    {
-      "message": "Login successful",
-      "token": "eyJhbGciOiJIUzI1NiIsInR5..."
-    }
-    ```
+### 模块划分与功能关系
+- **认证模块**: 负责用户的注册、登录、JWT 令牌生成与验证。
+- **轨迹管理模块**: 实现轨迹数据的上传、存储、热点轨迹挖掘与管理。
+- **推荐模块**: 提供拼车推荐与 POI 推荐服务，基于轨迹数据的挖掘结果。
 
-### 3. **推荐系统模块**
+## 3. 核心功能实现
 
-目录：`/app/recommendations`
+### 用户身份验证
+- 使用 Flask-JWT-Extended 实现用户登录、注册和身份验证。
+- 令牌设置了 1 小时的过期时间，支持 Refresh Token 延长用户会话时长。
+- 密码哈希使用 `werkzeug.security` 提供的安全加密方式。
 
-#### 文件：
-- `recommendations_routes.py`：处理拼车推荐和 POI 推荐的路由。
-- `models.py`：定义推荐结果的数据模型。
+### 热点轨迹挖掘
+- 根据用户轨迹数量选择不同的算法进行热点挖掘：
+  - **NDTTJ**: 适用于小于 50 条轨迹的数据，基于路径表合并的方法。
+  - **NDTTT**: 处理 50 到 1000 条轨迹的数据，通过构建更长路径进行挖掘。
+  - **TTHS**: 适用于超过 1000 条轨迹的数据，通过轨迹图的深度优先搜索挖掘热点。
+  
+[***挖掘算法说明***](https://github.com/reqwaaaaa/Maybe-its-life/blob/main/%E7%83%AD%E7%82%B9%E8%BD%A8%E8%BF%B9%E6%8C%96%E6%8E%98.md)
 
-#### 路由分析：
-- **`POST /recommendations/carpool`**
-  - **功能**：根据用户轨迹推荐拼车伙伴。
-  - **请求数据**：
-    ```json
-    {
-      "user_id": 1,
-      "trajectory_id": "traj123",
-      "current_location": {
-        "lat": 39.9042,
-        "lon": 116.4074
-      }
-    }
-    ```
-  - **响应数据**：
-    ```json
-    {
-      "recommendations": [
-        {
-          "user_id": 2,
-          "similarity": 0.89,
-          "name": "John Doe",
-          "location": {
-            "lat": 39.903,
-            "lon": 116.408
-          }
-        },
-        {
-          "user_id": 3,
-          "similarity": 0.72,
-          "name": "Jane Smith",
-          "location": {
-            "lat": 39.905,
-            "lon": 116.406
-          }
-        }
-      ]
-    }
-    ```
+### 拼车推荐
+- 使用 KDTree 对用户的热点轨迹数据进行相似度分析，找到与当前用户热点轨迹相似的其他用户。
+- 通过 `/carpool` 接口返回拼车推荐列表，包括用户 ID、电话、邮箱等信息。
 
-- **`POST /recommendations/poi`**
-  - **功能**：根据用户位置推荐 POI。
-  - **请求数据**：
-    ```json
-    {
-      "current_location": {
-        "lat": 39.9042,
-        "lon": 116.4074
-      }
-    }
-    ```
-  - **响应数据**：
-    ```json
-    {
-      "poi_suggestions": [
-        {
-          "name": "Great Wall",
-          "category": "Historical Site",
-          "lat": 40.4322,
-          "lon": 116.5704
-        },
-        {
-          "name": "Forbidden City",
-          "category": "Museum",
-          "lat": 39.9163,
-          "lon": 116.3972
-        }
-      ]
-    }
-    ```
+[***相似度分析说明***](https://github.com/reqwaaaaa/Maybe-its-life/blob/main/%E8%BD%A8%E8%BF%B9%E7%9B%B8%E4%BC%BC%E5%BA%A6%E5%88%86%E6%9E%90.md)
 
-### 4. **轨迹管理模块**
+### POI 推荐
+- 通过 `/poi` 接口对用户热点轨迹进行过滤，去除大量无关的密集轨迹点。
+- 返回筛选后的 POI 节点位置，以便用户获取更直观、简洁的路线建议。
 
-目录：`/app/track`
+### API 设计与调用
+- 项目采用 RESTful 风格的 API 设计，支持常用的 GET、POST 方法。
+- 认证路由 (`/auth`)、轨迹管理路由 (`/track`)、推荐路由 (`/recommendations`) 之间相互独立。
 
-#### 文件：
-- `track_routes.py`：处理轨迹上传、分析、历史查询。
-- `models.py`：定义轨迹数据模型。
+## 4. 补充
 
-#### 路由分析：
-- **`POST /track/upload`**
-  - **功能**：上传用户轨迹数据。
-  - **请求数据**：
-    ```json
-    {
-      "user_id": 1,
-      "trajectory_data": [
-        {"lat": 39.9042, "lon": 116.4074, "timestamp": "2024-01-01T10:00:00Z"},
-        {"lat": 39.9052, "lon": 116.4084, "timestamp": "2024-01-01T10:05:00Z"}
-      ]
-    }
-    ```
-  - **响应数据**：
-    ```json
-    {
-      "message": "Trajectory uploaded successfully",
-      "trajectory_id": "traj123"
-    }
-    ```
+### 热点轨迹挖掘算法逻辑
+- **NDTTJ 算法**: 基于 N 度路径表的连接与合并，适合于处理规模较小的轨迹数据，效率高且占用内存小。
+- **NDTTT 算法**: 通过构造更长的路径，提高轨迹挖掘的深度，适用于中等规模数据，能够有效捕获复杂热点。
+- **TTHS 算法**: 采用轨迹图的构建与遍历，适合于大规模数据，能够在合理时间内找到高频次热点轨迹。
 
-- **`POST /track/analyze`**
-  - **功能**：分析上传的轨迹，识别出热点区域。
-  - **请求数据**：
-    ```json
-    {
-      "trajectory_id": "traj123"
-    }
-    ```
-  - **响应数据**：
-    ```json
-    {
-      "hotspots": [
-        {"lat": 39.9042, "lon": 116.4074, "weight": 0.8},
-        {"lat": 39.9052, "lon": 116.4084, "weight": 0.7}
-      ]
-    }
-    ```
+### 数据缓存与性能优化
+- 使用 Redis 实现对热点数据和推荐结果的缓存，有效减少对数据库的频繁访问。
+- 缓存设置了 1 小时的自动过期时间，以保证数据的时效性和新鲜度。
 
-- **`GET /track/history`**
-  - **功能**：获取用户的历史轨迹。
-  - **响应数据**：
-    ```json
-    {
-      "trajectories": [
-        {
-          "trajectory_id": "traj123",
-          "points": [
-            {"lat": 39.9042, "lon": 116.4074, "timestamp": "2024-01-01T10:00:00Z"},
-            {"lat": 39.9052, "lon": 116.4084, "timestamp": "2024-01-01T10:05:00Z"}
-          ]
-        }
-      ]
-    }
-    ```
-
-### 5. **轨迹分析算法模块**
-
-目录：`/scripts`
-
-#### 文件：
-- `NDTTJ.py`：基于 N 度路径连接的轨迹分析算法。
-- `NDTTT.py`：基于 N 度遍历的轨迹分析算法。
-- `TSPMG_B.py`：基于深度优先搜索的频繁模式检测算法。
-
-#### 功能：
-- 这些脚本实现了不同的轨迹分析算法，用于分析用户上传的轨迹数据并识别热点或推荐路径。
-
-### 6. **缓存模块**
-
-文件：`app/cache.py`
-
-- **功能**：缓存轨迹分析结果，提高分析效率，避免对同样的轨迹数据进行重复计算。
-
-### 7. **数据库**
-
-文件：`database/routemate.sql`
-
-- **功能**：初始化数据库表，包括用户表、轨迹表、推荐结果表等。
-- **表结构**：
-  - **用户表**：存储用户的基本信息（用户名、邮箱、密码哈希等）。
-  - **轨迹表**：存储用户的轨迹数据。
-  - **推荐表**：存储推荐的拼车伙伴和 POI 结果。
-
-### 8. **配置文件**
-
-文件：`config.py`
-
-- **功能**：配置数据库连接、JWT 认证、Celery 等重要配置。
-- **配置项**：
-  - 数据库 URI
-  - JWT 秘钥和过期时间
-  - Celery 任务队列配置
-
-### 9. **Flask 应用入口**
-
-文件：`app.py`
-
-- **功能**：Flask 应用的入口文件，注册所有蓝图，并启动服务器。
-- **依赖项**：包括 Flask、SQLAlchemy、JWT、CORS 等。
-
+### 数据库优化与约束条件
+- 对轨迹表中存储的 JSON 数据进行路径校验，确保轨迹点包含经纬度和时间戳等必要字段。
+- 通过外键约束，保证用户和轨迹数据之间的完整性。
 
 
 
