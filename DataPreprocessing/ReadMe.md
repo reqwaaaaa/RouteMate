@@ -1,5 +1,5 @@
 # Hi！
 
-**This involves connecting to the database and performing data cleaning operations, which can be considered as preliminary steps for the project.**
+**This folder contains the process of `data cleaning` and `importing the initial trajectory data` into the local MySQL database, which can be understood as a `prerequisite` for this project.**
 
 [***Data source***](https://www.kaggle.com/datasets/marquis03/geolife-trajectories-1-3)
