@@ -79,5 +79,36 @@
 - 对轨迹表中存储的 JSON 数据进行路径校验，确保轨迹点包含经纬度和时间戳等必要字段。
 - 通过外键约束，保证用户和轨迹数据之间的完整性。
 
+### 目录
+```
+/backend
+├── /app
+│   ├── __init__.py                    # Flask 应用初始化
+│   ├── /auth                          # 用户认证模块
+│   │   ├── __init__.py
+│   │   ├── auth_routes.py             # 认证相关路由
+│   │   └── models.py                  # 用户相关数据库模型
+│   ├── /recommendations               # 推荐系统模块
+│   │   ├── __init__.py
+│   │   ├── recommendations_routes.py  # 拼车与 POI 推荐的路由
+│   │   └── models.py                  # 推荐相关数据库模型
+│   ├── /track                         # 轨迹管理模块
+│   │   ├── __init__.py
+│   │   ├── models.py                  # 轨迹数据相关数据库模型
+│   │   ├── track_routes.py            # 轨迹相关路由
+│   └── cache.py                       # 轨迹分析结果缓存模块，与 `auth` 平行
+├── /database
+│   └── routemate.sql                  # 数据库初始化 SQL 脚本
+├── /scripts                           # 轨迹分析算法相关脚本
+│   ├── __init__.py
+│   ├── NDTTJ.py                       # NDTTJ 算法脚本
+│   ├── NDTTT.py                       # NDTTT 算法脚本
+│   └── TTHS.py                        # TTHS 算法脚本
+├── app.py                             # Flask 应用入口文件
+└── config.py                          # 配置文件（包含数据库、JWT、Celery 配置）
+```
 
-
+### 前端链接
+  
+[***Vue版本***](https://github.com/reqwaaaaa/RM_Vue)
+[***Flutter版本***](https://github.com/reqwaaaaa/RouteMate_Front)
