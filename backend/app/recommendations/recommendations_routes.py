@@ -122,8 +122,8 @@ def get_poi_recommendations():
     filtered_hotspots = []
 
     # 判断热点路径数量
-    if len(hotspots) <= 50:
-        # 如果少于等于50条，不清洗直接返回
+    if len(hotspots) <= 10:
+        # 如果少于等于10条，不清洗直接返回
         filtered_hotspots = hotspots
     else:
         # 清洗热点轨迹，增大距离阈值以减少保留点数量
@@ -154,9 +154,10 @@ def get_poi_recommendations():
 
             filtered_hotspots.append(filtered_path)
 
-        # 如果清洗后的热点条数仍然多于50条，可以进一步减少
-        while len(filtered_hotspots) > 50:
-            filtered_hotspots = filtered_hotspots[:50]
+        # 如果清洗后的热点条数仍然多于10条，均匀选取10个点
+        if len(filtered_hotspots) > 10:
+            step = len(filtered_hotspots) // 10
+            filtered_hotspots = [filtered_hotspots[i * step] for i in range(10)]
 
     return jsonify({"filtered_hotspots": filtered_hotspots}), 200
 
