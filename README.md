@@ -112,3 +112,7 @@
   
 [***Vue版本***](https://github.com/reqwaaaaa/RM_Vue)
 [***Flutter版本***](https://github.com/reqwaaaaa/RouteMate_Front)
+
+### 后续研究计划
+
+[***Research on Frequent Pattern Mining Based on Hotspot Trajectories***](https://github.com/reqwaaaaa/Maybe-its-life/blob/main/Research%20on%20Frequent%20Pattern%20Mining%20Based%20on%20Hotspot%20Trajectories.md)
