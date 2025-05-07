@@ -115,4 +115,4 @@
 
 ### 后续研究计划
 
-[***Research on Frequent Pattern Mining Based on Hotspot Trajectories***](https://github.com/reqwaaaaa/Maybe-its-life/blob/main/Research%20on%20Frequent%20Pattern%20Mining%20Based%20on%20Hotspot%20Trajectories.md)
+[***Research on Frequent Pattern Mining Based on Hotspot Trajectories***](https://reqwaaaaa.github.io/Maybe-its-life/%E5%88%9B%E6%96%B0%E5%AE%9E%E9%AA%8C%E7%90%86%E8%AE%BA.html)
